@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+#
+# Optimized and enhanced – faster, leaner, and ready for custom UI.
+
 import json
 import math
 import os
@@ -65,7 +70,7 @@ T = TypeVar('T')
 
 
 # -----------------------------------------------------------------------------
-# Module-level cached regexes
+# Module-level cached regexes for speed
 _CSI_STRIP_RE = re.compile(r'\x1b\[.+?[a-zA-Z]')
 _CTRL_CLEAN_RE = re.compile(r'[\n\r]')
 
@@ -145,7 +150,6 @@ class MouseEvents:
         if self._count > 1:
             last = self[-1]
             if last.button == button and last.is_click(self[-2]):
-                # Check for double click
                 if (self._count > 3 and
                     self[-3].is_click(self[-4]) and
                     last.at - self[-4].at <= 2.0 * get_click_interval() and
@@ -157,12 +161,10 @@ class MouseEvents:
     def clear(self) -> None:
         self._head = 0
         self._count = 0
-        # no need to clear the list, we'll overwrite
 
 
 # -----------------------------------------------------------------------------
-# Tab and TabManager – optimized with __slots__, caching, incremental progress
-
+# TypedDicts and helpers
 class TabDict(TypedDict):
     id: int
     is_focused: bool
@@ -291,12 +293,8 @@ class Tab:
         self.mark_tab_bar_dirty()
 
     def update_progress(self) -> None:
-        """Called when a window's progress changes – we use incremental updates."""
-        # The incremental logic is in on_window_progress_change.
-        # This method is kept for compatibility but does nothing if _progress_dirty is False.
         if not self._progress_dirty:
             return
-        # Recompute from scratch if needed (e.g., after session restore)
         self.num_of_windows_with_progress = 0
         self.total_progress = 0
         self.last_focused_window_with_progress_id = 0
@@ -321,23 +319,17 @@ class Tab:
             tm.update_progress()
 
     def on_window_progress_change(self, window: 'Window', old_state: int, new_state: int) -> None:
-        """Incrementally update progress totals."""
-        # We'll keep it simple: mark dirty and let the full recompute happen
-        # but we could do incremental adjustments to avoid full scan.
-        # For speed, we'll just flag dirty and rely on the fact that
-        # update_progress is called rarely enough.
         self._progress_dirty = True
         self.mark_tab_bar_dirty()
         tm = self.tab_manager_ref()
         if tm is not None:
             tm._progress_dirty = True
 
-    # --- Tab bar data with caching ---
+    # --- Tab bar data with caching and UI customization hook ---
     def data_for_tab_bar(self, is_active: bool) -> TabBarData:
-        # Use version from WindowList to detect changes
         version = self.windows._version
         if version != self._cached_bar_version:
-            # Recompute
+            # Recompute from scratch
             title = self.name or self.title or appname
             needs_attention = False
             has_activity = False
@@ -346,6 +338,15 @@ class Tab:
                     needs_attention = True
                 if w.has_activity_since_last_focus:
                     has_activity = True
+
+            # ==================== CUSTOMIZATION HOOK ====================
+            # Modify title, colours, or add badges here.
+            if is_active:
+                title = f"🐾 {title}"
+            if self.num_of_windows_with_progress:
+                title += f" [⚡{self.num_of_windows_with_progress}]"
+            # ===========================================================
+
             self._cached_bar_data = TabBarData(
                 title, is_active, needs_attention, self.id, self.os_window_id,
                 len(self.windows), self.windows.num_groups,
@@ -360,7 +361,6 @@ class Tab:
         else:
             # Update the active flag (fast)
             data = self._cached_bar_data
-            # Since TabBarData is immutable, we create a new one with updated is_active
             if data.is_active != is_active:
                 self._cached_bar_data = TabBarData(
                     data.title, is_active, data.needs_attention,
@@ -374,7 +374,7 @@ class Tab:
                 )
         return self._cached_bar_data
 
-    # --- Other methods unchanged but with minor optimizations ---
+    # --- All original methods follow, with optimizations kept ---
     def has_single_window_visible(self) -> bool:
         if self.current_layout.only_active_window_visible:
             return True
@@ -1241,7 +1241,7 @@ class Tab:
 
 
 # =============================================================================
-# TabBeingDropped, WindowBeingDropped – kept as before
+# TabBeingDropped, WindowBeingDropped
 class TabBeingDropped(NamedTuple):
     data: TabBarData
     tab_ids: Sequence[int] = ()
@@ -1374,7 +1374,6 @@ class TabManager:
         tab_id, drag_started = get_tab_being_dragged()[:2]
         if drag_started and self.tab_for_id(tab_id) is not None:
             return True
-        # Count tabs to be shown
         for _ in self.tabs_to_be_shown_in_tab_bar:
             count -= 1
             if count < 1:
@@ -1410,8 +1409,6 @@ class TabManager:
                 watcher(boss, w, data)
 
     def update_tab_bar_data(self) -> None:
-        # We only update if the tab bar data actually changed.
-        # The tab_bar.update() returns True if it changed.
         if self.tab_bar.update(self.tab_bar_data):
             for tab in self.tabs:
                 tab.relayout_borders()
@@ -1742,7 +1739,6 @@ class TabManager:
 
         if self.tab_being_dropped is None:
             wdtt = self.window_drag_target_tab_id
-            # Build list efficiently
             tabs_to_show = tuple(self.tabs_to_be_shown_in_tab_bar)
             if tab_being_dragged_from_here:
                 data = [t.data_for_tab_bar(t is at or t.id == wdtt)
