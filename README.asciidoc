@@ -17,7 +17,7 @@ cd SO-CUTE-CAT
 ```
 
 #### 2. Local Development Build
-Run the built-in development scripts to test out your code modifications natively:
+Run the built-in development scripts 
 ```bash
 python3 test.py
 # Or use the developer setup wrapper
