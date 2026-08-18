@@ -1,4 +1,4 @@
-#  SO-CUTE-CAT
+#  SO-CUTE-CAT not made for windows
 
 `SO-CUTE-CAT` is a highly polished, performance-driven fork of the legendary [Kitty terminal] 
 
