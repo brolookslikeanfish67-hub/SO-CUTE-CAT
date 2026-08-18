@@ -1,16 +1,35 @@
-= kitty - the fast, feature-rich, cross-platform, GPU based terminal
+#  SO-CUTE-CAT
 
-If you live in the terminal, *kitty* is made for **you**!
+`SO-CUTE-CAT` is a highly polished, performance-driven fork of the legendary [Kitty terminal] 
 
-See https://sw.kovidgoyal.net/kitty/[the kitty website].
+While the original Kitty engine offers unparalleled GPU-accelerated text rendering, its strict development philosophy famously locks out heavily requested community features. `SO-CUTE-CAT` tames this beast. We add a modern user interface, richer visual flair, and deep personalization—all without sacrificing raw C and Python speed.
 
-image:https://github.com/kovidgoyal/kitty/workflows/CI/badge.svg["Build status", link="https://github.com/kovidgoyal/kitty/actions?query=workflow%3ACI"]
 
-https://sw.kovidgoyal.net/kitty/faq/[Frequently Asked Questions]
+###  Installation & Building From Source
 
-To ask other questions about kitty usage, use either the https://github.com/kovidgoyal/kitty/discussions/[discussions on GitHub] or the
-https://www.reddit.com/r/KittyTerminal[Reddit community]
+#### Prerequisites
+Ensure you have the required compilers and development libraries installed for your platform (including Python 3, a C compiler, and OpenGL/GLFW dependencies).
 
-Packaging status in various repositories:
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/brolookslikeanfish67-hub/SO-CUTE-CAT
+cd SO-CUTE-CAT
+```
 
-image:https://repology.org/badge/vertical-allrepos/kitty-terminal.svg?columns=3&header=kitty["Packaging status", link="https://repology.org/project/kitty-terminal/versions"]
+#### 2. Local Development Build
+Run the built-in development scripts to test out your code modifications natively:
+```bash
+python3 test.py
+# Or use the developer setup wrapper
+./dev.sh
+```
+
+---
+
+###  Contributing
+Found a feature the upstream maintainer wouldn't merge? Submit a Pull Request here! `SO-CUTE-CAT` thrives on community freedom. Fix the visual layout, add custom font handling protocols, or upgrade the UI. All creative experiments are welcome.
+
+---
+
+###  License
+This repository inherits the open-source licensing of the original project. See the `LICENSE` file for full terms and compliance guidelines.
