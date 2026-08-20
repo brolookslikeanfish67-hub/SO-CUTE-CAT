@@ -2,7 +2,7 @@
 
 `SO-CUTE-CAT` is a highly polished, performance-driven fork of the legendary [Kitty terminal] 
 
-While the original Kitty engine offers unparalleled GPU-accelerated text rendering, its strict development philosophy famously locks out heavily requested community features. `SO-CUTE-CAT` tames this beast. We add a modern user interface, richer visual flair, and deep personalization—all without sacrificing raw C and Python speed.
+While the original Kitty engine offers unparalleled GPU-accelerated text rendering, its strict development philosophy famously locks out heavily requested community features. `SO-CUTE-CAT` tames this beast. We add a modern user interface, richer visual flair, and deep personalization—all without sacrificing raw C and Python speed and this also has its own codebuddy so it fixs bugs and updates it to the newsest versiosn with my own tencent codebuddy tencent should make it tho like an real thing
 
 
 ###  Installation & Building From Source
