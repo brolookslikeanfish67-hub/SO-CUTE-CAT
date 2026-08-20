@@ -1,0 +1,36 @@
+name: Tencent CodeBuddy Local Fixer
+
+on:
+  push:
+    branches: [ "master" ] # Matches your default branch
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  tencent-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Runs Tencent-standard local lint checking (no APIs needed)
+      - name: Run Tencent Local Fix Engine
+        run: |
+          pip install ruff
+          ruff format . --check || ruff format .
+          ruff check . --fix || true
+
+      # Commits the changes back to your repo using Tencent's Bot identity
+      - name: Commit Bot Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: applied Tencent CodeBuddy automated formatting fixes"
+          commit_user_name: "Tencent-CodeBuddy-Bot"
+          commit_user_email: "codebuddy-bot@tencent.com"
