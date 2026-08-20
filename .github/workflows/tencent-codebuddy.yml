@@ -23,34 +23,44 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 1. UPGRADE ALL PYTHON DEPENDENCIES & PACKAGE FILES
+      # -------------------------------------------------------------
+      # 1. UPGRADE ALL PYTHON CORE RUNTIMES & DISCOVERABLE PACKAGES
+      # -------------------------------------------------------------
       - name: Run Tencent Dependency Update Engine
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip setuptools wheel ruff pur
+          # Force updates to your package manager files
           if [ -f setup.py ]; then
-            pip install pur
+            pur -z -r setup.py || true
+          fi
+          if [ -f requirements.txt ]; then
             pur -r requirements.txt || true
           fi
 
-      # 2. RUN AUTOMATED PYTHON FORMATTING & CODE FIXES
+      # -------------------------------------------------------------
+      # 2. SWEEP AND UPDATE PYTHON SYNTAX TO MODERN STANDARDS
+      # -------------------------------------------------------------
       - name: Run Tencent Python Fix Engine
         run: |
-          pip install ruff
-          ruff format . --check || ruff format .
+          # The --fix flag actively rewrites bad code and cleans up unused imports
           ruff check . --fix || true
+          ruff format . || true
 
+      # -------------------------------------------------------------
       # 3. RUN AUTOMATED C/C++ CODE FIXES
+      # -------------------------------------------------------------
       - name: Run Tencent C Fix Engine
         run: |
           sudo apt-get update && sudo apt-get install -y clang-format
           find . -name "*.c" -o -name "*.h" -o -name "*.cpp" | xargs clang-format -i || true
 
+      # -------------------------------------------------------------
       # 4. GENERATE THE AUTOMATED PULL REQUEST UNDER TENCENT PROFILE
+      # -------------------------------------------------------------
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # CRUCIAL FIX: [skip ci] and ***NO_CI*** prevents the original Kitty CI from blowing up
           commit-message: "chore: Tencent CodeBuddy automated system & style updates [skip ci] ***NO_CI***"
           committer: Tencent-CodeBuddy-Bot <codebuddy-bot@tencent.com>
           author: Tencent-CodeBuddy-Bot <codebuddy-bot@tencent.com>
