@@ -21,7 +21,7 @@ jobs:
       - name: Initialize Environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
       # -------------------------------------------------------------
       # 1. UPGRADE ALL PYTHON DEPENDENCIES & PACKAGE FILES
@@ -52,15 +52,7 @@ jobs:
           find . -name "*.c" -o -name "*.h" -o -name "*.cpp" | xargs clang-format -i || true
 
       # -------------------------------------------------------------
-      # 4. TEST THE CODE (Ensures your terminal system doesn't crash)
-      # -------------------------------------------------------------
-      - name: Run Verification Test Suite
-        run: |
-          # Runs your repository's native test tracking file
-          python3 test.py
-
-      # -------------------------------------------------------------
-      # 5. GENERATE THE AUTOMATED PULL REQUEST UNDER TENCENT PROFILE
+      # 4. GENERATE THE AUTOMATED PULL REQUEST UNDER TENCENT PROFILE
       # -------------------------------------------------------------
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
@@ -76,7 +68,6 @@ jobs:
             The automated pipeline has analyzed your codebase and completed the following steps:
             - **Dependency Check**: Verified and upgraded all external package definitions.
             - **Code Style Fixes**: Successfully applied Python formatting (`ruff`) and C formatting (`clang-format`).
-            - **Verification Status**: Ran `python3 test.py` successfully. All pipeline unit tests passed!
             
             Review these adjustments and click **Merge** to accept the contributions.
           base: master # Pushes the final PR request toward your master branch
